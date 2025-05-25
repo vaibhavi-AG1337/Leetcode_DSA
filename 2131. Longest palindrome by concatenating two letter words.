@@ -1,0 +1,40 @@
+class Solution {
+public:
+    int longestPalindrome(vector<string>& words) {
+        unordered_map<string, int> freq;
+        int length = 0;
+        bool hasCentralPalindrome = false;
+
+        // Count frequency of each word
+        for (const string& word : words) {
+            freq[word]++;
+        }
+
+        for (auto& [word, count] : freq) {
+            string reversed = string{word.rbegin(), word.rend()};
+
+            if (word != reversed) {
+                // Try to pair with its reverse
+                if (freq.count(reversed)) {
+                    int pairCount = min(count, freq[reversed]);
+                    length += pairCount * 4;
+                    freq[reversed] = 0;  // Avoid double-counting
+                    freq[word] = 0;
+                }
+            } else {
+                // Palindromic word like "aa", "bb", etc.
+                length += (count / 2) * 4;
+                if (count % 2 == 1) {
+                    hasCentralPalindrome = true;
+                }
+                freq[word] = 0;
+            }
+        }
+
+        if (hasCentralPalindrome) {
+            length += 2;  // One palindromic word can be placed in the center
+        }
+
+        return length;
+    }
+};
