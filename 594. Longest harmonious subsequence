@@ -1,0 +1,27 @@
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        int max_length = 0;
+        
+        // Count the frequency of each number
+        for (int num : nums) {
+            freq[num]++;
+        }
+        
+        // Check each number to see if num+1 exists
+        for (auto& [num, count] : freq) {
+            if (freq.find(num + 1) != freq.end()) {
+                max_length = max(max_length, count + freq[num + 1]);
+            }
+        }
+        
+        return max_length;
+    }
+};
