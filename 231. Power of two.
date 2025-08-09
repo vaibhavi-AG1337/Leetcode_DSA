@@ -1,0 +1,8 @@
+class Solution {
+public:
+    bool isPowerOfTwo(int n) {
+        // A power of two must be positive
+        // and have exactly one bit set in binary representation
+        return n > 0 && (n & (n - 1)) == 0;
+    }
+};
