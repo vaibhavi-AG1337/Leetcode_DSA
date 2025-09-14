@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<string> spellchecker(vector<string>& wordlist, vector<string>& queries) {
+        unordered_set<string> exact(wordlist.begin(), wordlist.end()); // for exact matches
+        unordered_map<string, string> cap;   // lowercase -> first match
+        unordered_map<string, string> vowel; // devoweled -> first match
+
+        for (string& w : wordlist) {
+            string low = toLower(w);
+            string dev = devowel(low);
+
+            if (!cap.count(low)) cap[low] = w;   // first occurrence
+            if (!vowel.count(dev)) vowel[dev] = w;
+        }
+
+        vector<string> ans;
+        for (string& q : queries) {
+            if (exact.count(q)) {
+                ans.push_back(q);
+                continue;
+            }
+            string low = toLower(q);
+            if (cap.count(low)) {
+                ans.push_back(cap[low]);
+                continue;
+            }
+            string dev = devowel(low);
+            if (vowel.count(dev)) {
+                ans.push_back(vowel[dev]);
+                continue;
+            }
+            ans.push_back("");
+        }
+        return ans;
+    }
+
+private:
+    string toLower(const string& s) {
+        string res = s;
+        for (char& c : res) c = tolower(c);
+        return res;
+    }
+
+    string devowel(const string& s) {
+        string res = s;
+        for (char& c : res) {
+            if (isVowel(c)) c = '*'; // unify vowels
+        }
+        return res;
+    }
+
+    bool isVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+    }
+};
