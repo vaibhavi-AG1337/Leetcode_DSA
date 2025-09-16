@@ -1,0 +1,39 @@
+#include <vector>
+#include <numeric>
+
+class Solution {
+public:
+    long long gcd(long long a, long long b) {
+        while (b) {
+            a %= b;
+            std::swap(a, b);
+        }
+        return a;
+    }
+    
+    std::vector<int> replaceNonCoprimes(std::vector<int>& nums) {
+        std::vector<long long> result_stack;
+        
+        for (long long num : nums) {
+            while (!result_stack.empty()) {
+                long long top = result_stack.back();
+                long long common_divisor = gcd(top, num);
+                
+                if (common_divisor == 1) {
+                    break;
+                }
+                
+                result_stack.pop_back();
+                num = (top * num) / common_divisor;
+            }
+            result_stack.push_back(num);
+        }
+        
+        std::vector<int> final_result;
+        for (long long val : result_stack) {
+            final_result.push_back(static_cast<int>(val));
+        }
+        
+        return final_result;
+    }
+};
