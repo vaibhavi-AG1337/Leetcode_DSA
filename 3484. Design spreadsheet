@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Spreadsheet {
+private:
+    int rows;
+    // 26 columns, rows given
+    vector<vector<int>> grid;
+
+    // Helper: parse cell like "B10" -> (rowIndex, colIndex) (0-based)
+    pair<int,int> parseCell(const string &cell) {
+        if (cell.empty()) return {0,0};
+        char colChar = cell[0];
+        int col = colChar - 'A';
+        int row = stoi(cell.substr(1)) - 1; // convert to 0-based
+        return {row, col};
+    }
+
+    // Helper: return value of either an integer literal or a cell reference
+    int valueOfToken(const string &token) {
+        // Check if token[0] is a letter A–Z (cell reference)
+        if (!token.empty() && isalpha(token[0])) {
+            auto [r, c] = parseCell(token);
+            if (r >= 0 && r < rows && c >= 0 && c < 26) {
+                return grid[r][c];
+            }
+            return 0; // out-of-range treated as 0
+        } else {
+            // numeric literal
+            return stoi(token);
+        }
+    }
+
+public:
+    Spreadsheet(int rows) : rows(rows), grid(rows, vector<int>(26, 0)) {}
+
+    void setCell(const string &cell, int value) {
+        auto [r, c] = parseCell(cell);
+        if (r >= 0 && r < rows && c >= 0 && c < 26) {
+            grid[r][c] = value;
+        }
+    }
+
+    void resetCell(const string &cell) {
+        auto [r, c] = parseCell(cell);
+        if (r >= 0 && r < rows && c >= 0 && c < 26) {
+            grid[r][c] = 0;
+        }
+    }
+
+    int getValue(const string &formula) {
+        // Expect formula like "=X+Y"
+        if (formula.empty() || formula[0] != '=') return 0;
+        string expr = formula.substr(1); // drop '='
+
+        // Split around '+'
+        size_t plusPos = expr.find('+');
+        if (plusPos == string::npos) return 0; // invalid -> 0
+
+        string left = expr.substr(0, plusPos);
+        string right = expr.substr(plusPos + 1);
+
+        return valueOfToken(left) + valueOfToken(right);
+    }
+};
+
+// Example usage
+/*
+int main() {
+    Spreadsheet sheet(10);
+    sheet.setCell("A1", 5);
+    sheet.setCell("B2", 7);
+    cout << sheet.getValue("=A1+B2") << "\n"; // prints 12
+    cout << sheet.getValue("=A1+10") << "\n"; // prints 15
+    sheet.resetCell("A1");
+    cout << sheet.getValue("=A1+B2") << "\n"; // prints 7
+}
+*/
