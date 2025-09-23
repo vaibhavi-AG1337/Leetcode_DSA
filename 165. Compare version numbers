@@ -1,0 +1,32 @@
+#include <string>
+using namespace std;
+
+class Solution {
+public:
+    // Returns:
+    //  -1 if version1 < version2
+    //   1 if version1 > version2
+    //   0 if equal
+    int compareVersion(const string &v1, const string &v2) {
+        long long num1 = 0, num2 = 0;
+
+        for (size_t i = 0, j = 0; i < v1.size() || j < v2.size();) {
+            while (i < v1.size() && v1[i] != '.') {
+                num1 = num1 * 10 + (v1[i] - '0');
+                ++i;
+            }
+            while (j < v2.size() && v2[j] != '.') {
+                num2 = num2 * 10 + (v2[j] - '0');
+                ++j;
+            }
+
+            if (num1 < num2) return -1;
+            if (num1 > num2) return 1;
+
+            num1 = num2 = 0;
+            if (i < v1.size() && v1[i] == '.') ++i;
+            if (j < v2.size() && v2[j] == '.') ++j;
+        }
+        return 0;
+    }
+};
