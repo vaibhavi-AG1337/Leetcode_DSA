@@ -1,0 +1,91 @@
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+private:
+    int m, n;
+    // Directions for moving North, South, East, West
+    const vector<pair<int, int>> directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    /**
+     * Depth-First Search to mark all cells that can flow into the ocean.
+     * Starts from the ocean border cells and moves inland.
+     * @param r The current row index.
+     * @param c The current column index.
+     * @param heights The island height grid.
+     * @param can_reach A boolean grid to mark cells reachable from the ocean.
+     */
+    void dfs(int r, int c, const vector<vector<int>>& heights, vector<vector<bool>>& can_reach) {
+        // Mark the current cell as reachable
+        can_reach[r][c] = true;
+
+        // Explore neighbors
+        for (const auto& dir : directions) {
+            int new_r = r + dir.first;
+            int new_c = c + dir.second;
+
+            // 1. Check bounds
+            if (new_r >= 0 && new_r < m && new_c >= 0 && new_c < n) {
+                // 2. Check if the neighbor is already visited (reachable)
+                if (!can_reach[new_r][new_c]) {
+                    // 3. Check height condition for reverse flow:
+                    // Water flows from a HIGHER/EQUAL cell to a LOWER one.
+                    // For reverse flow (inland), we must move from a LOWER cell (r, c)
+                    // to a HIGHER/EQUAL cell (new_r, new_c).
+                    if (heights[new_r][new_c] >= heights[r][c]) {
+                        dfs(new_r, new_c, heights, can_reach);
+                    }
+                }
+            }
+        }
+    }
+
+public:
+    vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
+        if (heights.empty() || heights[0].empty()) {
+            return {};
+        }
+
+        m = heights.size();
+        n = heights[0].size();
+
+        // Grids to track cells that can flow into the Pacific and Atlantic respectively
+        vector<vector<bool>> pacific_reachable(m, vector<bool>(n, false));
+        vector<vector<bool>> atlantic_reachable(m, vector<bool>(n, false));
+
+        // 1. Start DFS/BFS from all Pacific border cells (top row and left column)
+        for (int i = 0; i < m; ++i) {
+            // Left column (Pacific border)
+            dfs(i, 0, heights, pacific_reachable);
+        }
+        for (int j = 0; j < n; ++j) {
+            // Top row (Pacific border)
+            dfs(0, j, heights, pacific_reachable);
+        }
+
+        // 2. Start DFS/BFS from all Atlantic border cells (bottom row and right column)
+        for (int i = 0; i < m; ++i) {
+            // Right column (Atlantic border)
+            dfs(i, n - 1, heights, atlantic_reachable);
+        }
+        for (int j = 0; j < n; ++j) {
+            // Bottom row (Atlantic border)
+            dfs(m - 1, j, heights, atlantic_reachable);
+        }
+
+        // 3. Collect the intersection
+        vector<vector<int>> result;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                // If a cell can reach BOTH oceans
+                if (pacific_reachable[i][j] && atlantic_reachable[i][j]) {
+                    result.push_back({i, j});
+                }
+            }
+        }
+
+        return result;
+    }
+};
