@@ -1,0 +1,51 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+class Solution {
+public:
+    /**
+     * @brief Counts the number of successful potion pairs for each spell.
+     * * @param spells The array of spell strengths.
+     * @param potions The array of potion strengths.
+     * @param success The minimum required product for a successful pair.
+     * @return std::vector<int> An array where pairs[i] is the number of successful 
+     * potions for the i-th spell.
+     */
+    std::vector<int> successfulPairs(std::vector<int>& spells, std::vector<int>& potions, long long success) {
+        // 1. Sort the potions array to enable binary search for efficient counting.
+        std::sort(potions.begin(), potions.end());
+        
+        int n = spells.size();
+        int m = potions.size();
+        std::vector<int> pairs(n);
+
+        // Iterate through each spell.
+        for (int i = 0; i < n; ++i) {
+            long long spell_strength = spells[i];
+            
+            // The condition for a successful pair is: spell_strength * potions[j] >= success
+            // Rearranging for the minimum required potion strength (P_min):
+            // potions[j] >= success / spell_strength
+            // Since potions[j] is an integer, we need the ceiling of the division.
+            
+            // To ensure correct division and prevent overflow when calculating the required
+            // minimum strength (even though we're dividing), we use long long for the numerator.
+            long long required_min_strength = (success + spell_strength - 1) / spell_strength;
+            
+            // 2. Use binary search (std::lower_bound) to find the iterator pointing 
+            //    to the first element in 'potions' that is NOT less than required_min_strength.
+            //    This is the first potion strong enough to form a successful pair.
+            auto it = std::lower_bound(potions.begin(), potions.end(), required_min_strength);
+            
+            // 3. The number of successful potions is the count from this iterator 
+            //    to the end of the 'potions' array.
+            //    Subtracting the base pointer of the vector gives the index.
+            int successful_potions_count = potions.end() - it;
+            
+            pairs[i] = successful_potions_count;
+        }
+        
+        return pairs;
+    }
+};
